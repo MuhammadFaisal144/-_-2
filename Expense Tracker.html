@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker</title>
+   <style type="text/css">
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 400px;
+    margin: 50px auto;
+    background: #fff;
+    padding: 20px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+}
+
+form {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+form input {
+    width: 45%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+form button {
+    padding: 10px;
+    background-color: #5cb85c;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+li {
+    padding: 10px;
+    background: #eee;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+li span {
+    flex-grow: 1;
+    margin-right: 10px;
+}
+
+li button {
+    background-color: #d9534f;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-left: 5px;
+}
+
+   </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Expense Tracker</h1>
+        <form id="expense-form">
+            <input type="text" id="expense-name" placeholder="Expense Name" required>
+            <input type="number" id="expense-amount" placeholder="Amount" required>
+            <button type="submit">Add Expense</button>
+        </form>
+        <ul id="expense-list"></ul>
+    </div>
+    <script type="text/JavaScript">
+        // script.js
+
+document.addEventListener('DOMContentLoaded', () => {
+    const expenseForm = document.getElementById('expense-form');
+    const expenseList = document.getElementById('expense-list');
+    let expenses = JSON.parse(localStorage.getItem('expenses')) || [];
+
+    // Display stored expenses
+    expenses.forEach(expense => addExpenseToList(expense));
+
+    // Handle form submission
+    expenseForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.getElementById('expense-name').value;
+        const amountInPKR = document.getElementById('expense-amount').value;
+        const expense = { id: Date.now(), name, amount: amountInPKR };
+
+        // Add expense to list
+        addExpenseToList(expense);
+
+        // Save expense to local storage
+        expenses.push(expense);
+        localStorage.setItem('expenses', JSON.stringify(expenses));
+
+        // Clear form
+        expenseForm.reset();
+    });
+
+    // Add expense to the DOM
+    function addExpenseToList(expense) {
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <span>${expense.name} - PKR ${expense.amount}</span>
+            <button class="edit">Edit</button>
+            <button class="delete">Delete</button>
+        `;
+        expenseList.appendChild(li);
+
+        // Edit expense
+        li.querySelector('.edit').addEventListener('click', () => editExpense(expense, li));
+
+        // Delete expense
+        li.querySelector('.delete').addEventListener('click', () => deleteExpense(expense, li));
+    }
+
+    // Edit expense
+    function editExpense(expense, li) {
+        const name = prompt('Enter new name', expense.name);
+        const amountInPKR = prompt('Enter new amount in PKR', expense.amount);
+        if (name && amountInPKR) {
+            expense.name = name;
+            expense.amount = amountInPKR;
+
+            // Update the DOM
+            li.querySelector('span').textContent = `${name} - PKR ${amountInPKR}`;
+
+            // Update local storage
+            localStorage.setItem('expenses', JSON.stringify(expenses));
+        }
+    }
+
+    // Delete expense
+    function deleteExpense(expense, li) {
+        if (confirm('Are you sure you want to delete this expense?')) {
+            li.remove();
+
+            // Remove from local storage
+            expenses = expenses.filter(e => e.id !== expense.id);
+            localStorage.setItem('expenses', JSON.stringify(expenses));
+        }
+    }
+});
+
+
+    </script>
+</body>
+</html>
